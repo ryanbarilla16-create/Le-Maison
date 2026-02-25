@@ -1,6 +1,14 @@
+<?php
+// Load authentication if not already loaded
+if (!isset($auth)) {
+    require_once __DIR__ . '/../config/bootstrap.php';
+}
+$current_user = $auth->isUserAuthenticated() ? $auth->getCurrentUser() : null;
+?>
+
 <!-- Navigation -->
 <nav id="navbar">
-    <a href="#" class="nav-logo">Le Maison</a>
+    <a href="index.php" class="nav-logo">Le Maison</a>
     
     <div class="nav-links">
         <a href="#home">Home</a>
@@ -39,18 +47,58 @@
 
         <!-- Auth / Profile ALWAYS on the far right -->
         <div class="nav-auth-profile">
-            <!-- Auth Buttons (shown when logged out) -->
-            <a href="#" id="loginBtn" class="nav-auth-link" style="display: none;" onclick="document.getElementById('loginModal').classList.add('active'); return false;">Login</a>
-            <a href="#" id="registerBtn" class="nav-signup-btn" style="display: none;" onclick="document.getElementById('termsModal').classList.add('active'); return false;">Sign Up</a>
-
-            <!-- User Profile (shown when logged in) -->
-            <div id="userProfile" class="user-profile" style="display: none;">
-                <img id="navUserAvatar" src="" class="user-avatar" style="display:none;">
-                <i id="navUserIcon" class="fas fa-user-circle nav-icon-link user-default-icon"></i>
-                <span id="userName" class="user-name"></span>
-                <span id="adminLinkContainer"></span>
-                <a href="#" id="logoutBtn" class="logout-btn">Logout</a>
-            </div>
-        </div>
-    </div>
+            <?php if ($current_user): ?>
+                <!-- User Profile (logged in) -->
+                <div class="user-profile active" id="userProfile">
+                    <?php if ($current_user['avatar_url']): ?>
+                        <img id="navUserAvatar" src="<?php echo htmlspecialchars($current_user['avatar_url']); ?>" class="user-avatar" alt="Profile">
+                    <?php else: ?>
+                        <i class="fas fa-user-circle nav-icon-link user-default-icon"></i>
+                    <?php endif; ?>
+                    <span id="userName" class="user-name"><?php echo htmlspecialchars($current_user['first_name']); ?></span>
+                    
+                    <!-- Dropdown Menu -->
+                    <div class="user-dropdown-menu" id="userDropdown">
+                        <div class="dropdown-header">
+                            <strong><?php echo htmlspecialchars($current_user['first_name'] . ' ' . $current_user['last_name']); ?></strong>
+                            <p><?php echo htmlspecialchars($current_user['email']); ?></p>
+                        </div>
+                        
+                        <div class="dropdown-links">
+                            <?php if (in_array($current_user['role'], ['admin', 'super_admin'])): ?>
+                                <a href="admin/dashboard.php" class="dropdown-link">
+                                    <i class="fas fa-tachometer-alt"></i> Admin Dashboard
+                                </a>
+                            <?php elseif ($current_user['role'] === 'rider'): ?>
+                                <a href="rider/portal.php" class="dropdown-link">
+                                    <i class="fas fa-map-location-dot"></i> My Deliveries
+                                </a>
+                            <?php else: ?>
+                                <a href="pages/my-orders.php" class="dropdown-link">
+                                    <i class="fas fa-receipt"></i> My Orders
+                                </a>
+                                <a href="pages/my-reservations.php" class="dropdown-link">
+                                    <i class="fas fa-calendar-check"></i> My Reservations
+                                </a>
+                            <?php endif; ?>
+                            
+                            <a href="pages/profile-settings.php" class="dropdown-link">
+                                <i class="fas fa-cog"></i> Settings
+                            </a>
+                        </div>
+                        
+                        <button id="logoutBtn" class="logout-btn">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            <?php else: ?>
+                <!-- Auth Buttons (logged out) -->
+                <a href="login.php" class="nav-auth-link" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+                <a href="login.php?register=1" class="nav-signup-btn" id="registerBtn">
+                    <i class="fas fa-user-plus"></i> Sign Up
+                </a>
+            <?php endif; ?>
 </nav>
