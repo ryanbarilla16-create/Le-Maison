@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seed Menu Items</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #1a0f0a;
+            color: #fff;
+            padding: 3rem;
+        }
+
+        h1 {
+            color: #C9A961;
+            margin-bottom: 2rem;
+        }
+
+        #status {
+            background: #2a1a10;
+            padding: 2rem;
+            border-radius: 10px;
+            max-height: 70vh;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+
+        .success {
+            color: #7DAA92;
+        }
+
+        .error {
+            color: #D4654A;
+        }
+
+        .info {
+            color: #C9A961;
+        }
+
+        button {
+            padding: 1rem 3rem;
+            background: #C9A961;
+            color: #1a0f0a;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            background: #e0c47a;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🍳 Seed: All Day Breakfast Menu Items</h1>
+    <button id="seedBtn" onclick="seedItems()">Add All 10 Items to Firebase</button>
+    <div id="status"></div>
+
+    <script type="module">
+        import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAbCVknwP8IL1eFY_cYIX7QF7vohzzB2Iw",
+            authDomain: "ryan-a3898.firebaseapp.com",
+            projectId: "ryan-a3898",
+            storageBucket: "ryan-a3898.firebasestorage.app",
+            messagingSenderId: "77851915575",
+            appId: "1:77851915575:web:6a5362844dea8e046f16b2",
+            measurementId: "G-8X6FDR6VJ6"
+        };
+
+        const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // --- All Day Breakfast Menu Items ---
+        const menuItems = [
+            {
+                name: "Chicken Teriyaki Doria",
+                price: 285,
+                description: "Chicken Teriyaki, Rice, Teriyaki Sauce, Mozzarella",
+                category: "All Day Breakfast",
+                imageUrl: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=500&h=400&fit=crop"
+            },
+            {
+                name: "Dark Chocolate Champorado",
+                price: 229,
+                description: "Glutinous Rice, Dutch Cocoa Powder, Dark Chocolate, Dilis, Honey, Milk",
+                category: "All Day Breakfast",
+                imageUrl: "https://images.unsplash.com/photo-1517673132405-a56a62b18caf?w=500&h=400&fit=crop"
+            },
+            {
+                name: "Beef Teriyaki Doria",
+                price: 285,
+                description: "Beef Teriyaki, Rice, Teriyaki Sauce, Mozzarella",
+                category: "All Day Breakfast",
+                imageUrl: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500&h=400&fit=crop"
+            },
+            {
+                name: "Lucban Longganisa",
+                price: 319,
+                description: "Lucban Longganisa, Garlic Rice, Egg & Side Salad",
+                category: "All Day Breakfast",
+                imageUrl: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=500&h=400&fit=crop"
+            },
+            {
+                name: "Breakfast Sausage",
+                price: 289,
+                description: "Breakfast Sausage, Garlic Rice, Double Eggs, Side Salad",
+                category: "All Day Breakfast",
+                imageUrl: "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500&h=400&fit=crop"
+            },
+            {
+                name: "Salmon Teriyaki Doria",
+                price: 349,
+                description: "Norwegian Salmon Teriyaki, Rice, Teriyaki Sauce, Mozzarella",
+                category: "All Day Breakfast",
+                imageUrl: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=500&h=400&fit=crop"
+            },
+            {
+                name: "Big Breakfast",
+                price: 369,
+                description: "Choice of Pancakes or Toast, Bacon, Sausage, Egg, Beans, Tomato, Mushrooms",
+                category: "All Day Breakfast",
+                imageUrl: "https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=500&h=400&fit=crop"
+            },
+            {
+                name: "Bangus Belly",
+                price: 385,
+                description: "Fried Bangus Belly, Garlic Rice, Egg & Side Salad",
+                category: "All Day Breakfast",
+                imageUrl: "https://images.unsplash.com/photo-1580476262798-bddd9f4b7369?w=500&h=400&fit=crop"
+            },
+            {
+                name: "Bacon Rice",
+                price: 325,
+                description: "Premium Smoked Bacon, Garlic Rice, Egg and Side Salad",
+                category: "All Day Breakfast",
+                imageUrl: "https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=500&h=400&fit=crop"
+            },
+            {
+                name: "Beef Sirloin",
+                price: 325,
+                description: "Thinly Sliced Beef Marinated with Calamansi & Soy Sauce, Served with Rice, Egg and Side Salad",
+                category: "All Day Breakfast",
+                imageUrl: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500&h=400&fit=crop"
+            }
+        ];
+
+        const statusDiv = document.getElementById('status');
+        const seedBtn = document.getElementById('seedBtn');
+
+        function log(msg, cls = 'info') {
+            statusDiv.innerHTML += `<div class="${cls}">${msg}</div>`;
+            statusDiv.scrollTop = statusDiv.scrollHeight;
+        }
+
+        window.seedItems = async function () {
+            seedBtn.disabled = true;
+            seedBtn.textContent = '⏳ Adding items...';
+            log("🚀 Starting seed process...");
+            log(`📦 ${menuItems.length} items to add under category: All Day Breakfast`);
+            log("---");
+
+            let success = 0;
+            let failed = 0;
+
+            for (const item of menuItems) {
+                try {
+                    const docData = {
+                        ...item,
+                        createdAt: new Date(),
+                        updatedAt: new Date()
+                    };
+                    const docRef = await addDoc(collection(db, 'menu_items'), docData);
+                    log(`✅ Added: <strong>${item.name}</strong> — ₱${item.price} (ID: ${docRef.id})`, 'success');
+                    success++;
+                } catch (err) {
+                    log(`❌ FAILED: ${item.name} — ${err.message}`, 'error');
+                    failed++;
+                }
+            }
+
+            log("---");
+            log(`🎉 Done! ${success} items added, ${failed} failed.`, success === menuItems.length ? 'success' : 'error');
+            log("👉 You can now close this tab and check your Admin Dashboard!", 'info');
+
+            seedBtn.textContent = '✅ Seeding Complete!';
+        };
+    </script>
+</body>
+
+</html>

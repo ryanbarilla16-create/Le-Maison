@@ -1,0 +1,13 @@
+{
+    "name": "ryan/like_legit",
+    "description": "Le Maison Mailer",
+    "require": {
+        "phpmailer/phpmailer": "^7.0"
+    },
+    "authors": [
+        {
+            "name": "Ryan",
+            "email": "ryanbarilla16@gmail.com"
+        }
+    ]
+}
