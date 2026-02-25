@@ -83,69 +83,28 @@
         </div>
         <form class="auth-form" id="registerForm">
             <div class="form-group">
-                <label class="form-label">Legal Name</label>
-                <div class="name-row">
-                    <input type="text" id="regFirstName" placeholder="First" required>
-                    <input type="text" id="regMiddleName" placeholder="Middle">
-                    <input type="text" id="regLastName" placeholder="Last" required>
-                </div>
+                <label class="form-label">Full Name</label>
+                <input type="text" id="registerName" placeholder="Your Full Name" required>
             </div>
             
             <div class="form-group">
                 <label class="form-label">Email Address</label>
-                <input type="email" id="regEmail" placeholder="your@email.com" required>
+                <input type="email" id="registerEmail" placeholder="your@email.com" required>
             </div>
 
             <div class="form-group">
-                <label class="form-label">Birth Date</label>
-                <div class="bday-row">
-                    <select id="regBdayMonth" required>
-                        <option value="" disabled selected>Month</option>
-                        <option value="01">January</option><option value="02">February</option><option value="03">March</option>
-                        <option value="04">April</option><option value="05">May</option><option value="06">June</option>
-                        <option value="07">July</option><option value="08">August</option><option value="09">September</option>
-                        <option value="10">October</option><option value="11">November</option><option value="12">December</option>
-                    </select>
-                    <select id="regBdayDay" required>
-                        <option value="" disabled selected>Day</option>
-                    </select>
-                    <select id="regBdayYear" required>
-                        <option value="" disabled selected>Year</option>
-                    </select>
+                <label class="form-label">Password</label>
+                <div style="position: relative;">
+                    <input type="password" id="registerPassword" placeholder="Min. 6 chars" required minlength="6">
+                    <i class="fas fa-eye toggle-password" data-target="registerPassword" style="position: absolute; right: 12px; top: 15px; cursor: pointer; color: #888;"></i>
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="form-label">Preferred Username</label>
-                <input type="text" id="regUsername" placeholder="e.g. JeanValjean" required>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Guest Profile Image</label>
-                <div class="avatar-upload" id="avatarDropZone" onclick="document.getElementById('regAvatar').click()">
-                    <i class="fas fa-camera"></i>
-                    <p style="font-size: 0.8rem; color: #555; margin: 0.5rem 0;">Drag and drop or click to upload</p>
-                    <img class="avatar-preview" id="avatarPreview" alt="Preview">
-                </div>
-                <input type="file" id="regAvatar" accept="image/*" style="display:none">
-            </div>
-
-            <div class="auth-divider"><span>Security</span></div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <div style="position: relative;">
-                        <input type="password" id="regPassword" placeholder="Min. 6 chars" required minlength="6">
-                        <i class="fas fa-eye toggle-password" data-target="regPassword" style="position: absolute; right: 12px; top: 15px; cursor: pointer; color: #888;"></i>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Confirm</label>
-                    <div style="position: relative;">
-                        <input type="password" id="regConfirmPassword" placeholder="Confirm" required>
-                        <i class="fas fa-eye toggle-password" data-target="regConfirmPassword" style="position: absolute; right: 12px; top: 15px; cursor: pointer; color: #888;"></i>
-                    </div>
+                <label class="form-label">Confirm Password</label>
+                <div style="position: relative;">
+                    <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+                    <i class="fas fa-eye toggle-password" data-target="confirmPassword" style="position: absolute; right: 12px; top: 15px; cursor: pointer; color: #888;"></i>
                 </div>
             </div>
 

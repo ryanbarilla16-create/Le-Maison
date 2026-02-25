@@ -1,3 +1,9 @@
+<?php
+// Start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,9 +21,12 @@
     
     <!-- Main Style (Appended with time() to prevent browser caching issues) -->
     <link rel="stylesheet" href="assets/css/style.css?v=<?php echo time(); ?>">
+    
+    <!-- Session Authentication -->
+    <script src="assets/js/session-auth.js?v=<?php echo time(); ?>"></script>
 </head>
 <body>
-<?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+<?php if (isset($_SESSION['user_role']) && ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'super_admin')): ?>
     <style>
         body { margin-top: 40px !important; }
         .admin-top-bar {
