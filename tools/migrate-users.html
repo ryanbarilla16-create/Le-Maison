@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -110,8 +110,8 @@
 
 <body>
     <div class="container">
-        <h1>🔄 User Migration Tool</h1>
-        <p>This tool will check all users in Firebase Authentication and create corresponding entries in the Firestore
+        <h1>ðŸ”„ User Migration Tool</h1>
+        <p>This utility is no longer applicable</p>
             <code>users</code> collection if they don't already exist.</p>
 
         <button id="migrateBtn" onclick="migrateUsers()">
@@ -121,92 +121,7 @@
         <div id="log"></div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
-        import { getFirestore, collection, doc, getDoc, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
-        import { firebaseConfig } from "./assets/js/firebase-config.js";
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        function log(message, type = 'info') {
-            const logDiv = document.getElementById('log');
-            const item = document.createElement('div');
-            item.className = `log-item log-${type}`;
-            item.textContent = message;
-            logDiv.appendChild(item);
-            logDiv.scrollTop = logDiv.scrollHeight;
-        }
-
-        window.migrateUsers = async function () {
-            const btn = document.getElementById('migrateBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Migrating...';
-
-            document.getElementById('log').innerHTML = '';
-            log('🚀 Starting migration process...', 'info');
-
-            try {
-                // Get all users from Firestore users collection
-                const usersSnapshot = await getDocs(collection(db, 'users'));
-                const existingUIDs = new Set(usersSnapshot.docs.map(doc => doc.id));
-
-                log(`📊 Found ${existingUIDs.size} users already in Firestore`, 'info');
-
-                // Check current authenticated user
-                const currentUser = auth.currentUser;
-                if (!currentUser) {
-                    log('⚠️ No user is currently logged in. Please log in first.', 'error');
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-sync-alt"></i> Start Migration';
-                    return;
-                }
-
-                log(`👤 Current user: ${currentUser.email}`, 'info');
-
-                // Check if current user exists in Firestore
-                if (!existingUIDs.has(currentUser.uid)) {
-                    log(`➕ Adding current user to Firestore...`, 'info');
-
-                    await setDoc(doc(db, 'users', currentUser.uid), {
-                        email: currentUser.email,
-                        fullName: currentUser.displayName || 'User',
-                        firstName: currentUser.displayName?.split(' ')[0] || 'User',
-                        lastName: currentUser.displayName?.split(' ').slice(1).join(' ') || '',
-                        username: currentUser.email?.split('@')[0] || 'user',
-                        role: 'customer',
-                        createdAt: new Date(currentUser.metadata.creationTime),
-                        migratedAt: new Date()
-                    });
-
-                    log(`✅ Successfully added ${currentUser.email} to Firestore`, 'success');
-                } else {
-                    log(`ℹ️ Current user already exists in Firestore`, 'info');
-                }
-
-                log('✨ Migration complete!', 'success');
-                log('🔄 Refresh your Admin Dashboard to see the users', 'info');
-
-            } catch (error) {
-                console.error('Migration error:', error);
-                log(`❌ Error: ${error.message}`, 'error');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-sync-alt"></i> Start Migration';
-            }
-        };
-
-        // Wait for auth state
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                log(`✅ Logged in as: ${user.email}`, 'success');
-            } else {
-                log('⚠️ Not logged in. Please log in to your account first.', 'error');
-            }
-        });
-    </script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </body>

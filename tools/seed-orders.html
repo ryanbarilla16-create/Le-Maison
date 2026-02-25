@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -75,7 +75,7 @@
 
 <body>
     <div class="card">
-        <h1>📦 Seed Test Order</h1>
+        <h1>ðŸ“¦ Seed Test Order</h1>
         <p>Gagamitin nito ang mga fields na ni-request mo para lumitaw ang order sa Rider Portal (Rider's view).</p>
 
         <button id="seedBtn">Add Test Order to Firestore</button>
@@ -85,47 +85,7 @@
             After clicking, check <b>rider/portal.php</b> to see the order.
         </p>
     </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
-        import { firebaseConfig } from "./assets/js/firebase-config.js";
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        document.getElementById('seedBtn').onclick = async () => {
-            const btn = document.getElementById('seedBtn');
-            const status = document.getElementById('status');
-
-            btn.disabled = true;
-            btn.textContent = "Adding...";
-
-            try {
-                const docRef = await addDoc(collection(db, "orders"), {
-                    customerName: "Juan Dela Cruz", // using your preferred field name
-                    address: "Lipa City, Batangas",
-                    items: "1x Burger, 2x Fries",
-                    total: 350,
-                    delivery_type: "delivery",
-                    status: "ready_for_pickup",
-                    rider_id: "",
-                    createdAt: serverTimestamp()
-                });
-
-                status.className = "success";
-                status.innerHTML = `✅ <b>Success!</b><br>Order ID: ${docRef.id}<br><br>Ready na ito sa <b>Rider Portal</b>.`;
-                status.style.display = "block";
-                btn.textContent = "Order Added!";
-
-            } catch (e) {
-                console.error(e);
-                alert("Error: " + e.message);
-                btn.disabled = false;
-                btn.textContent = "Retry Seed Order";
-            }
-        };
-    </script>
 </body>
 
 </html>
+

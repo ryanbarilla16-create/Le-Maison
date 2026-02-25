@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // My Reservations - Customer Reservation Tracking
 ?>
 <!DOCTYPE html>
@@ -308,114 +308,7 @@
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
-        import { getFirestore, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
-        import { firebaseConfig } from "../assets/js/firebase-config.js";
 
-        const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-
-        onAuthStateChanged(auth, (user) => {
-            if (!user) {
-                window.location.href = '../index.php';
-                return;
-            }
-            loadReservations(user.uid);
-        });
-
-        function loadReservations(userId) {
-            const container = document.getElementById('reservationsContainer');
-            const q = query(collection(db, 'reservations'), where('userId', '==', userId));
-
-            onSnapshot(q, (snapshot) => {
-                if (snapshot.empty) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-calendar-times"></i>
-                            <h2>No Reservations Yet</h2>
-                            <p>You haven't made any table reservations. Book your spot today!</p>
-                            <a href="../index.php#home" class="btn-primary">Make a Reservation</a>
-                        </div>
-                    `;
-                    return;
-                }
-
-                const reservations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                reservations.sort((a, b) => {
-                    // Sort by date, then time
-                    if (a.date !== b.date) return b.date.localeCompare(a.date);
-                    return b.time.localeCompare(a.time);
-                });
-
-                container.innerHTML = '<div class="reservations-grid">' + reservations.map(res => {
-                    const resId = res.id.slice(-6).toUpperCase();
-                    
-                    const statusClass = {
-                        'Pending': 'status-pending',
-                        'Confirmed': 'status-confirmed',
-                        'Cancelled': 'status-cancelled',
-                        'Completed': 'status-completed'
-                    }[res.status] || 'status-pending';
-
-                    const statusIcon = {
-                        'Pending': 'fa-clock',
-                        'Confirmed': 'fa-check-circle',
-                        'Cancelled': 'fa-times-circle',
-                        'Completed': 'fa-flag-checkered'
-                    }[res.status] || 'fa-clock';
-
-                    const notesSection = res.notes ? `
-                        <div class="notes-section">
-                            <div class="notes-label">Special Request</div>
-                            <div class="notes-text">${res.notes}</div>
-                        </div>
-                    ` : '';
-
-                    const tableInfo = res.table ? `
-                        <div class="meta-item">
-                            <span class="meta-label">Assigned Table</span>
-                            <span class="meta-value"><i class="fas fa-chair"></i> ${res.table}</span>
-                        </div>
-                    ` : '';
-
-                    return `
-                        <div class="reservation-card">
-                            <div class="res-header">
-                                <div class="res-id">Reservation #${resId}</div>
-                                <div class="res-status ${statusClass}">
-                                    <i class="fas ${statusIcon}"></i> ${res.status || 'Pending'}
-                                </div>
-                            </div>
-                            <div class="res-body">
-                                <div class="res-meta">
-                                    <div class="meta-item">
-                                        <span class="meta-label">Guest Name</span>
-                                        <span class="meta-value"><i class="fas fa-user"></i> ${res.guestName}</span>
-                                    </div>
-                                    <div class="meta-item">
-                                        <span class="meta-label">Date</span>
-                                        <span class="meta-value"><i class="fas fa-calendar"></i> ${res.date}</span>
-                                    </div>
-                                    <div class="meta-item">
-                                        <span class="meta-label">Time</span>
-                                        <span class="meta-value"><i class="fas fa-clock"></i> ${res.time}</span>
-                                    </div>
-                                    <div class="meta-item">
-                                        <span class="meta-label">Guests</span>
-                                        <span class="meta-value"><i class="fas fa-users"></i> ${res.guests} ${res.guests > 1 ? 'People' : 'Person'}</span>
-                                    </div>
-                                    ${tableInfo}
-                                </div>
-                                ${notesSection}
-                            </div>
-                        </div>
-                    `;
-                }).join('') + '</div>';
-            });
-        }
-    </script>
 </body>
 </html>
+

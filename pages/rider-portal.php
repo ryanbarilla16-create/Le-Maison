@@ -378,8 +378,5 @@
     <nav style="padding: 1rem; border-top: 1px solid rgba(255,255,255,0.05); text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.3);">
         &copy; 2026 Le Maison de Yelo Lane. Premium Delivery Partner Portal.
     </nav>
-
-    <!-- Firebase & Logic Integration -->
-    <script type="module" src="../assets/js/rider-portal.js"></script>
 </body>
 </html>

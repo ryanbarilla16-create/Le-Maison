@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -74,7 +74,7 @@
         if (window.location.protocol === 'file:') {
             document.body.innerHTML = `
                 <div style="background:#ffebee; color:#c62828; padding:2rem; text-align:center; border:2px solid #ef9a9a; border-radius:8px;">
-                    <h2>⚠️ Stop! You opened this file incorrectly.</h2>
+                    <h2>âš ï¸ Stop! You opened this file incorrectly.</h2>
                     <p style="font-size:1.2rem;">You are using <code>file://</code> protocol. This prevents the app from connecting to Firebase.</p>
                     <p>Please open this link instead:<br>
                     <a href="http://localhost:3000/setup-rider.html" style="font-size:1.5rem; font-weight:bold; color:#d32f2f;">http://localhost:3000/setup-rider.html</a>
@@ -86,7 +86,7 @@
         }
     </script>
     <div class="card">
-        <h1>🚀 Create Test Rider Account</h1>
+        <h1>ðŸš€ Create Test Rider Account</h1>
         <p>This tool will create a Firebase Authentication user for a rider and assign a dummy "In Transit" delivery to
             them so you can test the tracking immediately.</p>
 
@@ -99,7 +99,6 @@
         <div id="status"></div>
     </div>
 
-    <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
@@ -152,20 +151,20 @@
                 });
 
                 statusEl.className = 'success';
-                statusEl.textContent = `✅ Success! Account Created.\nEmail: ${email}\nPassword: ${password}\n\nA test delivery has been assigned. Log in to rider-portal.php now!`;
+                statusEl.textContent = `âœ… Success! Account Created.\nEmail: ${email}\nPassword: ${password}\n\nA test delivery has been assigned. Log in to rider-portal.php now!`;
                 statusEl.style.display = 'block';
 
             } catch (error) {
                 console.error(error);
                 statusEl.className = 'error';
-                statusEl.textContent = `❌ Error: ${error.message}`;
+                statusEl.textContent = `âŒ Error: ${error.message}`;
                 statusEl.style.display = 'block';
             } finally {
                 createBtn.disabled = false;
                 createBtn.textContent = 'Create Account & Test Delivery';
             }
         });
-    </script>
 </body>
 
 </html>
+
