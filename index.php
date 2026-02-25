@@ -5,13 +5,13 @@ if (session_status() === PHP_SESSION_NONE) {
 // Le Maison de Yelo Lane - Premium French Dining
 ?>
 
-<?php include 'includes/header.php'; ?>
-<?php include 'includes/navbar.php'; ?>
+<?php include 'templates/header.php'; ?>
+<?php include 'templates/navbar.php'; ?>
 
 <main>
-    <?php include 'includes/hero.php'; ?>
+    <?php include 'templates/hero.php'; ?>
 
-    <?php include 'includes/about.php'; ?>
+    <?php include 'templates/about.php'; ?>
 
     <!-- Divider: Our Story → Our Menu -->
     <div class="section-divider">
@@ -22,7 +22,7 @@ if (session_status() === PHP_SESSION_NONE) {
         </div>
     </div>
 
-    <?php include 'includes/menu.php'; ?>
+    <?php include 'templates/menu.php'; ?>
 
     <!-- Divider: Our Menu → Guest Experiences -->
     <div class="section-divider">
@@ -33,14 +33,14 @@ if (session_status() === PHP_SESSION_NONE) {
         </div>
     </div>
 
-    <?php include 'includes/reviews.php'; ?>
+    <?php include 'templates/reviews.php'; ?>
 </main>
 
-<?php include 'includes/footer.php'; ?>
-<?php include 'includes/chatbot.php'; ?>
-<?php include 'includes/modals.php'; ?>
+<?php include 'templates/footer.php'; ?>
+<?php include 'templates/chatbot.php'; ?>
+<?php include 'templates/modals.php'; ?>
 
 <!-- Scripts -->
-<?php include 'includes/scripts.php'; ?>
+<?php include 'templates/scripts.php'; ?>
 </body>
 </html>

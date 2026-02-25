@@ -1,103 +1,43 @@
 <?php
 /**
- * Authentication API Endpoint
- * Handles login, logout, register, and user data retrieval
+ * Unified Authentication API
  */
 
 header('Content-Type: application/json');
-
 require_once __DIR__ . '/../config/bootstrap.php';
 
-$action = $_GET['action'] ?? '';
-$method = $_SERVER['REQUEST_METHOD'];
-
-// CORS headers
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+$action = $_REQUEST['action'] ?? '';
+$response = ['success' => false, 'error' => 'Invalid action'];
 
 switch ($action) {
     case 'login':
-        handleLogin();
+        $email = $_POST['email'] ?? '';
+        $password = $_POST['password'] ?? '';
+        $response = $auth->login($email, $password);
         break;
+
     case 'register':
-        handleRegister();
+        $email = $_POST['email'] ?? '';
+        $password = $_POST['password'] ?? '';
+        $name = $_POST['full_name'] ?? '';
+        $phone = $_POST['phone'] ?? '';
+        $response = $auth->register($email, $password, $name, $phone);
         break;
+
     case 'logout':
-        handleLogout();
+        $auth->logout();
+        $response = ['success' => true];
         break;
-    case 'get-user':
-        getCurrentUser();
-        break;
-    case 'change-password':
-        handleChangePassword();
-        break;
-    default:
-        echo json_encode(['success' => false, 'message' => 'Invalid action']);
-}
 
-function handleLogin() {
-    global $auth;
-    
-    $data = json_decode(file_get_contents('php://input'), true);
-    $email = $data['email'] ?? '';
-    $password = $data['password'] ?? '';
-    
-    $result = $auth->login($email, $password);
-    echo json_encode($result);
-}
-
-function handleRegister() {
-    global $auth;
-    
-    $data = json_decode(file_get_contents('php://input'), true);
-    $email = $data['email'] ?? '';
-    $password = $data['password'] ?? '';
-    $first_name = $data['first_name'] ?? '';
-    $last_name = $data['last_name'] ?? '';
-    $phone = $data['phone'] ?? '';
-    
-    $result = $auth->register($email, $password, $first_name, $last_name, $phone);
-    echo json_encode($result);
-}
-
-function handleLogout() {
-    global $auth;
-    $auth->logout();
-    echo json_encode(['success' => true, 'message' => 'Logged out successfully']);
-}
-
-function getCurrentUser() {
-    global $auth;
-    
-    if ($auth->isUserAuthenticated()) {
+    case 'getCurrentUser':
         $user = $auth->getCurrentUser();
-        echo json_encode([
-            'success' => true,
-            'user' => $user
-        ]);
-    } else {
-        echo json_encode([
-            'success' => false,
-            'message' => 'Not authenticated'
-        ]);
-    }
+        $response = $user ? ['success' => true, 'user' => $user] : ['success' => false, 'error' => 'Not logged in'];
+        break;
+
+    default:
+        $response = ['success' => false, 'error' => "Action '$action' not recognized"];
+        break;
 }
 
-function handleChangePassword() {
-    global $auth;
-    
-    $data = json_decode(file_get_contents('php://input'), true);
-    $current_password = $data['current_password'] ?? '';
-    $new_password = $data['new_password'] ?? '';
-    
-    if (!$auth->isUserAuthenticated()) {
-        echo json_encode(['success' => false, 'message' => 'Not authenticated']);
-        return;
-    }
-    
-    $user = $auth->getCurrentUser();
-    $result = $auth->changePassword($user['id'], $current_password, $new_password);
-    echo json_encode($result);
-}
-?>
+echo json_encode($response);
+exit;

@@ -12,7 +12,8 @@ $db_user = getenv('DB_USER') ?: 'neondb_owner';
 $db_password = getenv('DB_PASSWORD') ?: '';
 
 // PostgreSQL DSN for PDO
-$dsn = "pgsql:host={$db_host};port={$db_port};dbname={$db_name};sslmode=require";
+$endpoint_id = explode('.', $db_host)[0];
+$dsn = "pgsql:host={$db_host};port={$db_port};dbname={$db_name};sslmode=require;options='endpoint={$endpoint_id}'";
 
 try {
     // Create PDO connection with SSL enabled
@@ -23,8 +24,7 @@ try {
         [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false,
-            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
+            PDO::ATTR_EMULATE_PREPARES => false
         ]
     );
     

@@ -22,9 +22,9 @@ class SessionAuth {
      */
     async checkLoginStatus() {
         try {
-            const response = await fetch('assets/php/auth/auth-api.php?action=getCurrentUser');
+            const response = await fetch('api/auth.php?action=getCurrentUser');
             const data = await response.json();
-            
+
             if (data.success && data.user) {
                 this.currentUser = data.user;
                 this.showProfile();
@@ -86,7 +86,7 @@ class SessionAuth {
             formData.append('email', email);
             formData.append('password', password);
 
-            const response = await fetch('assets/php/auth/auth-api.php', {
+            const response = await fetch('api/auth.php', {
                 method: 'POST',
                 body: formData
             });
@@ -95,7 +95,7 @@ class SessionAuth {
 
             if (data.success) {
                 this.showSuccess('Login successful! Redirecting...');
-                
+
                 // Close modal
                 const loginModal = document.getElementById('loginModal');
                 if (loginModal) {
@@ -143,7 +143,7 @@ class SessionAuth {
             formData.append('password', password);
             formData.append('full_name', fullName);
 
-            const response = await fetch('assets/php/auth/auth-api.php', {
+            const response = await fetch('api/auth.php', {
                 method: 'POST',
                 body: formData
             });
@@ -183,7 +183,7 @@ class SessionAuth {
         }
 
         try {
-            const response = await fetch('assets/php/auth/auth-api.php?action=logout');
+            const response = await fetch('api/auth.php?action=logout');
             const data = await response.json();
 
             if (data.success) {

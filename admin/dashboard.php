@@ -42,36 +42,36 @@ if (!isset($_SESSION['2fa_role']) || !in_array($_SESSION['2fa_role'], ['admin', 
 
     <div class="dashboard-container">
         <!-- Sidebar -->
-        <?php include 'includes/sidebar.php'; ?>
+        <?php include 'templates/sidebar.php'; ?>
 
         <!-- Main Content -->
         <main class="main-content">
             <!-- Header/Topbar -->
-            <?php include 'includes/topbar.php'; ?>
+            <?php include 'templates/topbar.php'; ?>
 
             <!-- Sections -->
-            <?php include 'includes/overview.php'; ?>
-            <?php include 'includes/analytics.php'; ?>
-            <?php include 'includes/orders.php'; ?>
-            <?php include 'includes/menu.php'; ?>
-            <?php include 'includes/approvals.php'; ?>
-            <?php include 'includes/users.php'; ?>
-            <?php include 'includes/customers.php'; ?>
-            <?php include 'includes/inventory.php'; ?>
-            <?php include 'includes/reservations.php'; ?>
-            <?php include 'includes/delivery.php'; ?>
-            <?php include 'includes/reviews.php'; ?>
-            <?php include 'includes/promotions.php'; ?>
-            <?php include 'includes/reports.php'; ?>
-            <?php include 'includes/settings.php'; ?>
+            <?php include 'templates/overview.php'; ?>
+            <?php include 'templates/analytics.php'; ?>
+            <?php include 'templates/orders.php'; ?>
+            <?php include 'templates/menu.php'; ?>
+            <?php include 'templates/approvals.php'; ?>
+            <?php include 'templates/users.php'; ?>
+            <?php include 'templates/customers.php'; ?>
+            <?php include 'templates/inventory.php'; ?>
+            <?php include 'templates/reservations.php'; ?>
+            <?php include 'templates/delivery.php'; ?>
+            <?php include 'templates/reviews.php'; ?>
+            <?php include 'templates/promotions.php'; ?>
+            <?php include 'templates/reports.php'; ?>
+            <?php include 'templates/settings.php'; ?>
         </main>
     </div>
 
     <!-- Modals -->
-    <?php include 'includes/modals.php'; ?>
+    <?php include 'templates/modals.php'; ?>
 
     <!-- Scripts -->
-    <?php include 'includes/scripts.php'; ?>
+    <?php include 'templates/scripts.php'; ?>
 
 </body>
 </html>

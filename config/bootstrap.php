@@ -1,42 +1,49 @@
 <?php
 /**
  * Application Bootstrap
- * Initializes database connection and authentication system
+ * Initializes core components and handles autoloading
  */
 
-// Load configuration
-$db_host = getenv('DB_HOST') ?: 'ep-wispy-dew-aigdgy1u-pooler.c-4.us-east-1.aws.neon.tech';
-$db_port = getenv('DB_PORT') ?: '5432';
-$db_name = getenv('DB_NAME') ?: 'neondb';
-$db_user = getenv('DB_USER') ?: 'neondb_owner';
-$db_password = getenv('DB_PASSWORD') ?: '';
-
-$dsn = "pgsql:host={$db_host};port={$db_port};dbname={$db_name};sslmode=require";
-
-try {
-    $pdo = new PDO(
-        $dsn,
-        $db_user,
-        $db_password,
-        [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false
-        ]
-    );
-} catch (PDOException $e) {
-    error_log('Database Connection Error: ' . $e->getMessage());
-    die('Database connection failed. Please try again later.');
+// Load .env file
+function loadEnv($path) {
+    if (!file_exists($path)) return;
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos(trim($line), '#') === 0) continue;
+        list($name, $value) = explode('=', $line, 2);
+        putenv(sprintf('%s=%s', trim($name), trim($value)));
+        $_ENV[trim($name)] = trim($value);
+    }
 }
+loadEnv(dirname(__DIR__) . '/.env');
 
-// Load class files
-require_once __DIR__ . '/SessionHandler.php';
-require_once __DIR__ . '/AuthHandler.php';
+// Autoloader for LeMaison namespace
+spl_autoload_register(function ($class) {
+    $prefix = 'LeMaison\\';
+    $base_dir = dirname(__DIR__) . '/src/';
 
-// Initialize components
-$session = new SessionHandler($pdo);
-$auth = new AuthHandler($pdo, $session);
+    $len = strlen($prefix);
+    if (strncmp($prefix, $class, $len) !== 0) {
+        return;
+    }
 
-// Make globally available
+    $relative_class = substr($class, $len);
+    $file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
+
+    if (file_exists($file)) {
+        require $file;
+    }
+});
+
+use LeMaison\Core\Database;
+use LeMaison\Core\Session;
+use LeMaison\Core\Auth;
+
+// Initialize Core Components
+$pdo = Database::getInstance()->getConnection();
+$session = new Session($pdo);
+$auth = new Auth($pdo, $session);
+
+// Global access for legacy scripts
 global $pdo, $session, $auth;
-?>
+
