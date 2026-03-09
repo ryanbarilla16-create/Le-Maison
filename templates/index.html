@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Le Maison Yelo Lane{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <div class="hero-content">
+        <h1>Welcome to Le Maison Yelo Lane</h1>
+        <p>Experience exquisite dining with our carefully curated menu</p>
+        <div class="hero-buttons">
+            <a href="/menu" class="btn btn-primary">Order Now</a>
+            <a href="/reservations" class="btn btn-secondary">Reserve a Table</a>
+        </div>
+    </div>
+</div>
+
+<div class="features">
+    <div class="feature-card">
+        <h3>🍽️ Quality Cuisine</h3>
+        <p>Experience authentic flavors prepared by our expert chefs</p>
+    </div>
+    <div class="feature-card">
+        <h3>🚚 Fast Delivery</h3>
+        <p>Quick and reliable delivery service available</p>
+    </div>
+    <div class="feature-card">
+        <h3>💳 Easy Payment</h3>
+        <p>Multiple payment options including GCash and COD</p>
+    </div>
+    <div class="feature-card">
+        <h3>🏆 Premium Service</h3>
+        <p>Dine-in experience with table reservations</p>
+    </div>
+</div>
+
+<section class="popular-items">
+    <h2>Popular Items</h2>
+    <div class="items-grid" id="popular-items">
+        <!-- Loaded via JavaScript -->
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Load popular items
+    fetch('/api/items')
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById('popular-items');
+            data.data.slice(0, 4).forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'item-card';
+                card.innerHTML = `
+                    <div class="item-image">🍲</div>
+                    <h3>${item.name}</h3>
+                    <p>${item.description}</p>
+                    <p class="price">₱${item.price.toFixed(2)}</p>
+                    <button class="btn btn-small" onclick="addToCart(${item.id})">Add to Cart</button>
+                `;
+                container.appendChild(card);
+            });
+        });
+
+    function addToCart(itemId) {
+        const quantity = prompt('How many?', '1');
+        if (!quantity) return;
+        
+        fetch('/api/cart/add', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({item_id: itemId, quantity: parseInt(quantity)})
+        }).then(res => res.json()).then(data => {
+            if (data.success) {
+                updateCartCount();
+                alert('Added to cart!');
+            }
+        });
+    }
+</script>
+{% endblock %}

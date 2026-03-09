@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}Track Order - Le Maison Yelo Lane{% endblock %}
+
+{% block content %}
+<div class="track-order-header">
+    <h1>Track Your Order</h1>
+    <p>Enter your order number to track the status</p>
+</div>
+
+<div class="track-order-container">
+    <form id="track-form" class="track-form">
+        <div class="form-group">
+            <label for="order-number">Order Number *</label>
+            <input type="text" id="order-number" placeholder="e.g., ORD-20240309123456" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Track Order</button>
+    </form>
+
+    <div id="order-status" style="display:none;" class="order-status">
+        <div class="status-card">
+            <h2>Order Details</h2>
+            <table class="status-table">
+                <tbody>
+                    <tr>
+                        <td>Order Number:</td>
+                        <td id="status-order-number"></td>
+                    </tr>
+                    <tr>
+                        <td>Customer Name:</td>
+                        <td id="status-customer-name"></td>
+                    </tr>
+                    <tr>
+                        <td>Order Date:</td>
+                        <td id="status-date"></td>
+                    </tr>
+                    <tr>
+                        <td>Order Type:</td>
+                        <td id="status-order-type"></td>
+                    </tr>
+                    <tr>
+                        <td>Status:</td>
+                        <td id="status-badge"></td>
+                    </tr>
+                    <tr>
+                        <td>Total Amount:</td>
+                        <td id="status-total"></td>
+                    </tr>
+                    <tr>
+                        <td>Payment Status:</td>
+                        <td id="status-payment"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="status-card">
+            <h2>Order Items</h2>
+            <ul id="status-items"></ul>
+        </div>
+
+        <div class="status-timeline">
+            <h2>Order Progress</h2>
+            <div class="timeline">
+                <div class="timeline-item" id="timeline-pending">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <h4>Order Received</h4>
+                        <p>Your order has been received</p>
+                    </div>
+                </div>
+                <div class="timeline-item" id="timeline-confirmed">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <h4>Order Confirmed</h4>
+                        <p>Your order has been confirmed</p>
+                    </div>
+                </div>
+                <div class="timeline-item" id="timeline-preparing">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <h4>Preparing</h4>
+                        <p>Your order is being prepared</p>
+                    </div>
+                </div>
+                <div class="timeline-item" id="timeline-ready">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <h4>Ready</h4>
+                        <p>Your order is ready</p>
+                    </div>
+                </div>
+                <div class="timeline-item" id="timeline-completed">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <h4>Completed</h4>
+                        <p>Your order has been completed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="not-found" style="display:none;" class="error-state">
+        <h2>Order Not Found</h2>
+        <p>The order number you entered was not found. Please check and try again.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const form = document.getElementById('track-form');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const orderNumber = document.getElementById('order-number').value.trim();
+
+        try {
+            const response = await fetch(`/api/checkout/order/${orderNumber}`);
+            const result = await response.json();
+
+            if (result.success) {
+                const order = result.order;
+                displayOrderStatus(order);
+            } else {
+                showNotFound();
+            }
+        } catch (error) {
+            showNotFound();
+        }
+    });
+
+    function displayOrderStatus(order) {
+        document.getElementById('order-status').style.display = 'block';
+        document.getElementById('not-found').style.display = 'none';
+
+        document.getElementById('status-order-number').textContent = order.order_number;
+        document.getElementById('status-customer-name').textContent = order.customer_name;
+        document.getElementById('status-date').textContent = order.created_at;
+        document.getElementById('status-order-type').textContent = order.order_type;
+        document.getElementById('status-total').textContent = '₱' + order.total_amount.toFixed(2);
+        document.getElementById('status-payment').textContent = order.payment_status.toUpperCase();
+
+        const statusBadge = document.getElementById('status-badge');
+        statusBadge.innerHTML = `<span class="status-badge ${order.status}">${order.status.toUpperCase()}</span>`;
+
+        // Display items
+        const itemsList = document.getElementById('status-items');
+        itemsList.innerHTML = '';
+        order.items.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = `${item.menu_item.name} x ${item.quantity} - ₱${item.subtotal.toFixed(2)}`;
+            itemsList.appendChild(li);
+        });
+
+        // Update timeline
+        const statuses = ['pending', 'confirmed', 'preparing', 'ready', 'completed'];
+        statuses.forEach(status => {
+            const element = document.getElementById(`timeline-${status}`);
+            if (statuses.indexOf(order.status) >= statuses.indexOf(status)) {
+                element.classList.add('active');
+            } else {
+                element.classList.remove('active');
+            }
+        });
+    }
+
+    function showNotFound() {
+        document.getElementById('order-status').style.display = 'none';
+        document.getElementById('not-found').style.display = 'block';
+    }
+</script>
+{% endblock %}

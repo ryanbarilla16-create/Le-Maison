@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Order Receipt - Le Maison Yelo Lane{% endblock %}
+
+{% block content %}
+<div class="receipt-container">
+    <div class="receipt-content" id="receipt-content">
+        <!-- Receipt loaded here -->
+    </div>
+
+    <div class="receipt-actions">
+        <button onclick="window.print()" class="btn btn-primary">Print Receipt</button>
+        <a href="/menu" class="btn btn-secondary">Order More</a>
+        <a href="/" class="btn btn-secondary">Back Home</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const orderNumber = '{{ order_number }}';
+
+    function loadReceipt() {
+        fetch(`/api/checkout/receipt/${getOrderId()}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    displayReceipt(data.receipt);
+                } else {
+                    // Try to get order by number
+                    fetch(`/api/checkout/order/${orderNumber}`)
+                        .then(r => r.json())
+                        .then(d => {
+                            if (d.success) {
+                                getReceiptFromOrder(d.order);
+                            }
+                        });
+                }
+            });
+    }
+
+    function getOrderId() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('id') || sessionStorage.getItem('order_id') || '1';
+    }
+
+    function getReceiptFromOrder(order) {
+        const receipt = {
+            order_number: order.order_number,
+            restaurant: 'Le Maison Yelo Lane',
+            date: order.created_at,
+            customer_name: order.customer_name,
+            customer_phone: order.customer_phone,
+            order_type: order.order_type,
+            items: order.items,
+            subtotal: order.total_amount - (order.items.reduce((sum, item) => sum + item.subtotal, 0)),
+            delivery_fee: 0,
+            total: order.total_amount,
+            payment_method: order.payment_method,
+            payment_status: order.payment_status,
+            status: order.status
+        };
+        displayReceipt(receipt);
+    }
+
+    function displayReceipt(receipt) {
+        const container = document.getElementById('receipt-content');
+        let itemsHTML = '';
+        let subtotal = 0;
+
+        receipt.items.forEach(item => {
+            itemsHTML += `
+                <tr>
+                    <td class="item-name">${item.name}</td>
+                    <td class="item-qty">${item.quantity}</td>
+                    <td class="item-price">₱${item.unit_price.toFixed(2)}</td>
+                    <td class="item-total">₱${item.subtotal.toFixed(2)}</td>
+                </tr>
+            `;
+            subtotal += item.subtotal;
+        });
+
+        const receiptHTML = `
+            <div class="receipt-header">
+                <h1>🏠 ${receipt.restaurant}</h1>
+                <p>Receipt</p>
+            </div>
+
+            <div class="receipt-info">
+                <p><strong>Order Number:</strong> ${receipt.order_number}</p>
+                <p><strong>Date & Time:</strong> ${receipt.date}</p>
+                <p><strong>Customer:</strong> ${receipt.customer_name}</p>
+                <p><strong>Phone:</strong> ${receipt.customer_phone}</p>
+                <p><strong>Order Type:</strong> ${receipt.order_type}</p>
+                <p><strong>Status:</strong> <span class="status-badge ${receipt.status}">${receipt.status.toUpperCase()}</span></p>
+            </div>
+
+            <table class="receipt-table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Qty</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${itemsHTML}
+                </tbody>
+            </table>
+
+            <table class="receipt-summary-table">
+                <tbody>
+                    <tr>
+                        <td>Subtotal:</td>
+                        <td class="amount">₱${subtotal.toFixed(2)}</td>
+                    </tr>
+                    ${receipt.delivery_fee > 0 ? `
+                    <tr>
+                        <td>Delivery Fee:</td>
+                        <td class="amount">₱${receipt.delivery_fee.toFixed(2)}</td>
+                    </tr>
+                    ` : ''}
+                    <tr class="total-row">
+                        <td>Total Amount:</td>
+                        <td class="amount total">₱${receipt.total.toFixed(2)}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="receipt-payment">
+                <p><strong>Payment Method:</strong> ${receipt.payment_method === 'cod' ? 'Cash on Delivery' : 'GCash'}</p>
+                <p><strong>Payment Status:</strong> 
+                    <span class="payment-status ${receipt.payment_status}">${receipt.payment_status.toUpperCase()}</span>
+                </p>
+            </div>
+
+            <div class="receipt-footer">
+                <p>Thank you for your order!</p>
+                <p>Please keep this receipt for your records</p>
+                ${receipt.payment_method === 'cod' ? `
+                    <p style="color: #8B4513; font-weight: bold;">Please prepare ₱${receipt.total.toFixed(2)} for payment upon delivery</p>
+                ` : `
+                    <p style="color: #6B3410; font-weight: bold;">Please complete your GCash payment</p>
+                `}
+            </div>
+        `;
+
+        container.innerHTML = receiptHTML;
+    }
+
+    // Load receipt on page load
+    loadReceipt();
+</script>
+{% endblock %}

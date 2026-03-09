@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout - Le Maison Yelo Lane{% endblock %}
+
+{% block content %}
+<div class="checkout-header">
+    <h1>Checkout</h1>
+</div>
+
+<div class="checkout-container">
+    <form id="checkout-form" class="checkout-form">
+        <!-- Customer Information -->
+        <div class="form-section">
+            <h2>Customer Information</h2>
+            <div class="form-group">
+                <label for="customer-name">Full Name *</label>
+                <input type="text" id="customer-name" name="customer_name" required>
+            </div>
+            <div class="form-group">
+                <label for="customer-phone">Phone Number *</label>
+                <input type="tel" id="customer-phone" name="customer_phone" required>
+            </div>
+            <div class="form-group">
+                <label for="customer-email">Email (Optional)</label>
+                <input type="email" id="customer-email" name="customer_email">
+            </div>
+        </div>
+
+        <!-- Order Type -->
+        <div class="form-section">
+            <h2>Order Type</h2>
+            <div class="form-group">
+                <label>
+                    <input type="radio" name="order_type" value="dine-in" checked>
+                    Dine-in
+                </label>
+                <label>
+                    <input type="radio" name="order_type" value="takeaway">
+                    Takeaway
+                </label>
+                <label>
+                    <input type="radio" name="order_type" value="delivery">
+                    Delivery
+                </label>
+            </div>
+            <div id="delivery-section" style="display:none;">
+                <div class="form-group">
+                    <label for="delivery-address">Delivery Address</label>
+                    <textarea id="delivery-address" name="delivery_address"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="delivery-fee">Delivery Fee: ₱<span id="fee-display">0.00</span></label>
+                    <input type="hidden" id="delivery-fee" name="delivery_fee" value="0">
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Method -->
+        <div class="form-section">
+            <h2>Payment Method</h2>
+            <div class="form-group">
+                <label>
+                    <input type="radio" name="payment_method" value="cod" checked>
+                    Cash on Delivery (COD)
+                </label>
+                <label>
+                    <input type="radio" name="payment_method" value="gcash">
+                    GCash
+                </label>
+            </div>
+        </div>
+
+        <!-- Order Summary Table -->
+        <div class="form-section">
+            <h2>Order Summary</h2>
+            <table class="cart-summary-table">
+                <thead>
+                    <tr>
+                        <th colspan="2">Order Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Subtotal:</td>
+                        <td class="amount">₱<span id="checkout-subtotal">0.00</span></td>
+                    </tr>
+                    <tr id="delivery-fee-row" style="display:none;">
+                        <td>Delivery Fee:</td>
+                        <td class="amount">₱<span id="checkout-delivery-fee">0.00</span></td>
+                    </tr>
+                    <tr class="total-row">
+                        <td>Total Amount:</td>
+                        <td class="amount total">₱<span id="checkout-total">0.00</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="checkout-actions">
+            <a href="/cart" class="btn btn-secondary">Back to Cart</a>
+            <button type="submit" class="btn btn-primary">Place Order</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const form = document.getElementById('checkout-form');
+
+    // Load cart summary
+    function loadCheckoutSummary() {
+        fetch('/api/cart/view')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('checkout-subtotal').textContent = data.total.toFixed(2);
+                document.getElementById('checkout-total').textContent = data.total.toFixed(2);
+            });
+    }
+
+    // Handle order type change
+    document.querySelectorAll('input[name="order_type"]').forEach(input => {
+        input.addEventListener('change', function() {
+            const deliverySection = document.getElementById('delivery-section');
+            const deliveryFeeRow = document.getElementById('delivery-fee-row');
+            
+            if (this.value === 'delivery') {
+                deliverySection.style.display = 'block';
+                deliveryFeeRow.style.display = 'table-row';
+                document.getElementById('delivery-fee').value = 50;
+                document.getElementById('fee-display').textContent = '50.00';
+                updateTotal();
+            } else {
+                deliverySection.style.display = 'none';
+                deliveryFeeRow.style.display = 'none';
+                document.getElementById('delivery-fee').value = 0;
+                updateTotal();
+            }
+        });
+    });
+
+    function updateTotal() {
+        const subtotal = parseFloat(document.getElementById('checkout-subtotal').textContent);
+        const delivery = parseFloat(document.getElementById('delivery-fee').value) || 0;
+        const total = subtotal + delivery;
+        document.getElementById('checkout-total').textContent = total.toFixed(2);
+        document.getElementById('checkout-delivery-fee').textContent = delivery.toFixed(2);
+    }
+
+    // Handle form submission
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData);
+
+        try {
+            const response = await fetch('/api/checkout/process', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Redirect to receipt page
+                window.location.href = `/order/${result.order_number}`;
+            } else {
+                alert('Error: ' + result.message);
+            }
+        } catch (error) {
+            alert('Error processing order: ' + error.message);
+        }
+    });
+
+    // Load on page load
+    loadCheckoutSummary();
+</script>
+{% endblock %}

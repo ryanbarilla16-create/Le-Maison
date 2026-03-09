@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Menu - Le Maison Yelo Lane{% endblock %}
+
+{% block content %}
+<div class="menu-header">
+    <h1>Our Menu</h1>
+    <p>Choose from our delicious selection of dishes</p>
+</div>
+
+<div class="menu-container">
+    <!-- Categories Navigation -->
+    <div class="categories-nav">
+        <button class="category-btn active" onclick="filterCategory('all')">All Items</button>
+        {% for category in categories %}
+        <button class="category-btn" onclick="filterCategory({{ category.id }})">{{ category.name }}</button>
+        {% endfor %}
+    </div>
+
+    <!-- Menu Items Grid -->
+    <div class="menu-items" id="menu-items">
+        <!-- Loaded via JavaScript -->
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let allItems = [];
+
+    // Load menu items
+    fetch('/api/items')
+        .then(res => res.json())
+        .then(data => {
+            allItems = data.data;
+            displayItems(allItems);
+        });
+
+    function displayItems(items) {
+        const container = document.getElementById('menu-items');
+        container.innerHTML = '';
+        
+        items.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'menu-item-card';
+            card.innerHTML = `
+                <div class="item-image">🍲</div>
+                <div class="item-content">
+                    <h3>${item.name}</h3>
+                    <p class="category">${item.category_name}</p>
+                    <p class="description">${item.description}</p>
+                    <div class="item-footer">
+                        <span class="price">₱${item.price.toFixed(2)}</span>
+                        <button class="btn btn-small" onclick="addToCart(${item.id})">Add to Cart</button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function filterCategory(categoryId) {
+        // Update active button
+        document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+
+        if (categoryId === 'all') {
+            displayItems(allItems);
+        } else {
+            const filtered = allItems.filter(item => item.category_id === categoryId);
+            displayItems(filtered);
+        }
+    }
+
+    function addToCart(itemId) {
+        const quantity = prompt('How many?', '1');
+        if (!quantity) return;
+        
+        fetch('/api/cart/add', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({item_id: itemId, quantity: parseInt(quantity)})
+        }).then(res => res.json()).then(data => {
+            if (data.success) {
+                updateCartCount();
+                alert('Added to cart!');
+            }
+        });
+    }
+</script>
+{% endblock %}
