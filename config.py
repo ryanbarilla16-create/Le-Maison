@@ -1,31 +1,40 @@
 import os
-from datetime import timedelta
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 class Config:
-    """Base configuration"""
-    basedir = os.path.abspath(os.path.dirname(__file__))
+    # Security Key for Flask Session tracking
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'super_secret_key_123'
+    FACEBOOK_APP_ID = os.environ.get('FACEBOOK_APP_ID') or 'YOUR_FACEBOOK_APP_ID_HERE'
+    GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID') or 'YOUR_GOOGLE_CLIENT_ID_HERE'
     
-    # Database
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'instance', 'lemaisonyelolane.db')
+    
+    # Neon PostgreSQL (Primary Database)
+    _db_url = os.environ.get("NEON_DATABASE_URL")
+    
+    if not _db_url:
+        raise ValueError("NEON_DATABASE_URL is missing! Please configure it in your .env file.")
+    
+    # Neon strings often use `postgres://`, but SQLAlchemy requires `postgresql://`
+    if _db_url.startswith("postgres://"):
+        _db_url = _db_url.replace("postgres://", "postgresql://", 1)
+        
+    SQLALCHEMY_DATABASE_URI = _db_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    
-    # Session
-    PERMANENT_SESSION_LIFETIME = timedelta(days=7)
-    SESSION_COOKIE_SECURE = False
-    SESSION_COOKIE_HTTPONLY = True
-    SESSION_COOKIE_SAMESITE = 'Lax'
-    
-    # App settings
-    RESTAURANT_NAME = "Le Maison Yelo Lane"
-    TIMEZONE = "Asia/Manila"
-    RESTAURANT_HOURS = {
-        "monday": {"open": "10:00", "close": "22:00"},
-        "tuesday": {"open": "10:00", "close": "22:00"},
-        "wednesday": {"open": "10:00", "close": "22:00"},
-        "thursday": {"open": "10:00", "close": "22:00"},
-        "friday": {"open": "10:00", "close": "23:00"},
-        "saturday": {"open": "11:00", "close": "23:00"},
-        "sunday": {"open": "11:00", "close": "22:00"},
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_pre_ping": True,
+        "pool_recycle": 300,
     }
-    TOTAL_TABLES = 20
-    RESERVATION_ADVANCE_DAYS = 30
+    
+    SUPABASE_URL = os.environ.get("SUPABASE_URL")
+    SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+    
+    # Mail Config (for OTP)
+    MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
+    MAIL_PORT = int(os.environ.get('MAIL_PORT', 587))
+    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'True').lower() in ['true', 'on', '1']
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USERNAME')

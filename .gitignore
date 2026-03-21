@@ -2,49 +2,27 @@
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-.Python
-env/
+.venv/
 venv/
 ENV/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Flask
+.env
 instance/
-.webassets-cache
+*.db
 
-# IDE
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+build/
+
+# IDEs
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
-
-# Environment
-.env
-.env.local
-
-# Database
-*.db
-*.sqlite
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Logs
-*.log

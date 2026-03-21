@@ -1,133 +1,181 @@
-{% extends "base.html" %}
+{% extends "layouts/base.html" %}
 
-{% block title %}Shopping Cart - Le Maison Yelo Lane{% endblock %}
+{% block title %}Your Cart — Le Maison{% endblock %}
 
 {% block content %}
-<div class="cart-header">
-    <h1>Shopping Cart</h1>
-</div>
+<style>
+    .cartPage { max-width: 1100px; margin: 6rem auto 3rem; padding: 0 1.5rem; min-height: 70vh; }
+    .cartHead { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
+    .cartHead h2 { font-family: 'Playfair Display', 'Georgia', serif; font-weight: 700; font-size: 2rem; margin: 0; }
+    .cartHead h2 i { color: var(--primary-color); font-size: 1.5rem; }
+    .cartHead .cartCount { background: rgba(93,64,55,0.08); color: var(--primary-color); padding: 0.2rem 0.75rem; border-radius: 50px; font-size: 0.78rem; font-weight: 700; }
 
-<div class="cart-container">
-    <div class="cart-items-section">
-        <table class="cart-table">
-            <thead>
-                <tr>
-                    <th>Item</th>
-                    <th>Price</th>
-                    <th>Quantity</th>
-                    <th>Subtotal</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="cart-items">
-                <!-- Items loaded here -->
-            </tbody>
-        </table>
+    .cartGrid { display: grid; grid-template-columns: 1fr 380px; gap: 2rem; align-items: start; }
+    .cartList { background: #fff; border-radius: 20px; border: 1px solid var(--border-color); box-shadow: 0 4px 20px rgba(0,0,0,0.04); overflow: hidden; }
+    .cartItem { display: grid; grid-template-columns: auto 1fr auto auto auto; gap: 1rem; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid rgba(93,64,55,0.05); transition: background 0.2s; }
+    .cartItem:last-child { border-bottom: none; }
+    .cartItem:hover { background: rgba(93,64,55,0.02); }
+    .cartItem-img { width: 64px; height: 64px; border-radius: 14px; object-fit: cover; }
+    .cartItem-noImg { width: 64px; height: 64px; border-radius: 14px; background: rgba(93,64,55,0.06); display: flex; align-items: center; justify-content: center; }
+    .cartItem-noImg i { color: rgba(93,64,55,0.2); font-size: 1.2rem; }
+    .cartItem-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.1rem; }
+    .cartItem-cat { font-size: 0.78rem; color: var(--text-muted); }
+    .cartItem-price { color: var(--text-muted); font-weight: 600; font-size: 0.88rem; white-space: nowrap; }
+    .cartItem-qty { background: rgba(93,64,55,0.06); padding: 0.3rem 0.75rem; border-radius: 8px; font-weight: 700; font-size: 0.88rem; text-align: center; }
+    .cartItem-subtotal { font-family: 'Playfair Display', serif; font-weight: 700; color: var(--primary-color); font-size: 1rem; white-space: nowrap; }
+    .cartItem-remove { width: 34px; height: 34px; border-radius: 10px; border: 1px solid rgba(200,50,50,0.15); background: rgba(200,50,50,0.04); color: #C62828; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; font-size: 0.8rem; }
+    .cartItem-remove:hover { background: #C62828; color: #fff; border-color: #C62828; }
+
+    .cartSummary { background: #fff; border-radius: 20px; border: 1px solid var(--border-color); box-shadow: 0 4px 20px rgba(0,0,0,0.04); padding: 1.75rem; position: sticky; top: 80px; }
+    .cartSummary h5 { font-family: 'Playfair Display', serif; font-weight: 700; padding-bottom: 1rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(93,64,55,0.08); }
+    .cartSummary .sumRow { display: flex; justify-content: space-between; margin-bottom: 0.75rem; color: var(--text-muted); font-size: 0.9rem; }
+    .cartSummary .sumTotal { display: flex; justify-content: space-between; padding-top: 0.75rem; margin-top: 0.5rem; border-top: 1.5px solid rgba(93,64,55,0.1); }
+    .cartSummary .sumTotal span:first-child { font-weight: 700; font-size: 1.1rem; }
+    .cartSummary .sumTotal span:last-child { font-family: 'Playfair Display', serif; font-weight: 800; font-size: 1.3rem; color: var(--primary-color); }
+
+    .cartSummary label.form-label { font-weight: 700; font-size: 0.88rem; color: var(--text-main); margin-bottom: 0.5rem; }
+    .cartOpt { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
+    .cartOpt label { flex: 1; background: rgba(93,64,55,0.04); border: 1.5px solid transparent; border-radius: 12px; padding: 0.6rem 0.75rem; text-align: center; font-weight: 600; font-size: 0.82rem; cursor: pointer; transition: all 0.3s; }
+    .cartOpt input:checked+label { border-color: var(--primary-color); background: rgba(93,64,55,0.08); color: var(--primary-color); }
+
+    .cartPay { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.25rem; }
+    .cartPay label { background: rgba(93,64,55,0.04); border: 1.5px solid transparent; border-radius: 14px; padding: 0.85rem 1rem; cursor: pointer; transition: all 0.3s; }
+    .cartPay input:checked+label { border-color: var(--primary-color); background: rgba(93,64,55,0.06); }
+    .cartPay label .payTitle { font-weight: 700; font-size: 0.88rem; display: flex; align-items: center; gap: 6px; }
+    .cartPay label .payDesc { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.15rem; padding-left: 24px; }
+
+    .cartSubmit { background: linear-gradient(135deg, #5D4037, #795548); color: #fff; font-weight: 700; border: none; border-radius: 50px; padding: 0.85rem; width: 100%; font-size: 1rem; cursor: pointer; transition: all 0.3s; box-shadow: 0 6px 20px rgba(93,64,55,0.2); letter-spacing: 0.5px; }
+    .cartSubmit:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(93,64,55,0.3); }
+
+    .cartEmpty { text-align: center; padding: 5rem 1rem; }
+    .cartEmpty i { font-size: 5rem; color: rgba(93,64,55,0.08); margin-bottom: 1.5rem; }
+    .cartEmpty h3 { font-family: 'Playfair Display', serif; margin-bottom: 0.5rem; }
+    .cartEmpty p { color: var(--text-muted); margin-bottom: 1.5rem; }
+
+    @media(max-width: 900px) { .cartGrid { grid-template-columns: 1fr; } .cartItem { grid-template-columns: auto 1fr auto; gap: 0.75rem; } .cartItem-price, .cartItem-qty { display: none; } }
+</style>
+
+<div class="cartPage">
+    {% if cart_items %}
+    <div class="cartHead">
+        <h2><i class="fas fa-shopping-cart"></i> Your Cart</h2>
+        <span class="cartCount">{{ cart_items|length }} item{{ 's' if cart_items|length > 1 else '' }}</span>
     </div>
 
-    <!-- Cart Summary - Single Table -->
-    <div class="cart-summary-section">
-        <table class="cart-summary-table">
-            <thead>
-                <tr>
-                    <th colspan="2">Order Summary</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Subtotal:</td>
-                    <td class="amount">₱<span id="subtotal">0.00</span></td>
-                </tr>
-                <tr>
-                    <td>Delivery Fee:</td>
-                    <td class="amount">₱<span id="delivery-fee">0.00</span></td>
-                </tr>
-                <tr class="total-row">
-                    <td>Total:</td>
-                    <td class="amount total">₱<span id="total">0.00</span></td>
-                </tr>
-            </tbody>
-        </table>
+    <div class="cartGrid">
+        <div class="cartList">
+            {% for c_item in cart_items %}
+            <div class="cartItem">
+                {% if c_item.item.image_url %}
+                <img src="{{ c_item.item.image_url }}" alt="{{ c_item.item.name }}" class="cartItem-img">
+                {% else %}
+                <div class="cartItem-noImg"><i class="fas fa-utensils"></i></div>
+                {% endif %}
+                <div>
+                    <div class="cartItem-name">{{ c_item.item.name }}</div>
+                    <div class="cartItem-cat">{{ c_item.item.category }}</div>
+                </div>
+                <span class="cartItem-price">₱{{ "%.2f"|format(c_item.item.price) }}</span>
+                <span class="cartItem-qty">{{ c_item.quantity }}</span>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="cartItem-subtotal">₱{{ "%.2f"|format(c_item.subtotal) }}</span>
+                    <form action="{{ url_for('main.remove_from_cart', item_id=c_item.item.id) }}" method="POST" class="d-inline m-0">
+                        <button type="submit" class="cartItem-remove" title="Remove"><i class="fas fa-trash-alt"></i></button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
 
-        <div class="cart-actions">
-            <a href="/menu" class="btn btn-secondary">Continue Shopping</a>
-            <a href="/checkout" class="btn btn-primary">Proceed to Checkout</a>
+        <div class="cartSummary">
+            <h5>Order Summary</h5>
+            <div class="sumRow"><span>Items Subtotal</span><span>₱{{ "%.2f"|format(total) }}</span></div>
+            <div class="sumRow"><span>Tax & Fees</span><span style="font-style:italic;">At store</span></div>
+            <div class="sumRow" id="delivery_fee_row" style="display: none !important;"><span>Delivery Fee</span><span>₱50.00</span></div>
+            <div class="sumTotal"><span>Total</span><span id="totalAmountDisplay">₱{{ "%.2f"|format(total) }}</span></div>
+
+            <form action="{{ url_for('main.checkout') }}" method="POST" style="margin-top: 1.5rem;">
+                <label class="form-label">Dining Option</label>
+                <div class="cartOpt">
+                    <input type="radio" class="btn-check" name="dining_option" id="dine_in" value="DINE_IN" checked>
+                    <label for="dine_in"><i class="fas fa-utensils me-1"></i>Dine In</label>
+                    <input type="radio" class="btn-check" name="dining_option" id="take_out" value="TAKE_OUT">
+                    <label for="take_out"><i class="fas fa-shopping-bag me-1"></i>Take Out</label>
+                    <input type="radio" class="btn-check" name="dining_option" id="delivery" value="DELIVERY">
+                    <label for="delivery"><i class="fas fa-motorcycle me-1"></i>Delivery</label>
+                </div>
+
+                <div id="delivery_fields" style="display: none;" class="mb-3">
+                    <div style="background: rgba(93,64,55,0.03); border-radius: 14px; padding: 1rem; border: 1px solid rgba(93,64,55,0.06);">
+                        <label class="form-label" style="font-size: 0.85rem;">Delivery Area</label>
+                        <select name="delivery_area" id="delivery_area" class="form-select mb-2" style="border-radius: 10px; border: 1px solid var(--border-color);">
+                            <option value="">Select your area...</option>
+                            <option value="Santa Cruz, Laguna">Santa Cruz, Laguna</option>
+                            <option value="Magdalena, Laguna">Magdalena, Laguna</option>
+                            <option value="Los Baños, Laguna">Los Baños, Laguna</option>
+                            <option value="Cavinti, Laguna">Cavinti, Laguna</option>
+                        </select>
+                        <label class="form-label" style="font-size: 0.85rem;">Address / Landmark</label>
+                        <textarea name="delivery_address" id="delivery_address" class="form-control" rows="2" placeholder="House number, street, near..." style="border-radius: 10px; border: 1px solid var(--border-color); resize: none;"></textarea>
+                    </div>
+                </div>
+
+                <label class="form-label">Payment Method</label>
+                <div class="cartPay">
+                    <input type="radio" class="btn-check" name="payment_method" id="pay_counter" value="COUNTER" checked>
+                    <label for="pay_counter">
+                        <div class="payTitle"><i class="fas fa-cash-register" style="color: #2E7D32;"></i> <span id="label_pay_counter">Pay at Counter</span></div>
+                        <div class="payDesc" id="desc_pay_counter">Pay cash or card in-store.</div>
+                    </label>
+                    <input type="radio" class="btn-check" name="payment_method" id="pay_online" value="ONLINE">
+                    <label for="pay_online">
+                        <div class="payTitle"><i class="fas fa-mobile-alt" style="color: #1565C0;"></i> Online Payment (GCash)</div>
+                        <div class="payDesc" id="desc_pay_online">Pay securely via e-wallet.</div>
+                    </label>
+                </div>
+
+                <label class="form-label">Special Instructions <span style="font-weight: 400; color: var(--text-muted); font-size: 0.78rem;">(Optional)</span></label>
+                <textarea id="notes" name="notes" class="form-control mb-4" rows="2" placeholder="e.g. Less sugar, extra napkins..." style="border-radius: 12px; border: 1px solid var(--border-color); resize: none;"></textarea>
+
+                {% if current_user.is_authenticated %}
+                <button type="submit" class="cartSubmit"><i class="fas fa-check-circle me-2"></i>Submit Order</button>
+                {% else %}
+                <button type="button" class="cartSubmit" style="background: linear-gradient(135deg,#333,#555);" onclick="$('#termsModal').modal('show'); window.authIntent = 'login';">Sign in to Checkout</button>
+                {% endif %}
+            </form>
+            <div class="text-center mt-3">
+                <a href="{{ url_for('main.menu_page') }}" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-muted)'"><i class="fas fa-arrow-left me-1"></i> Continue Shopping</a>
+            </div>
         </div>
     </div>
-</div>
 
-<div id="empty-cart" class="empty-state" style="display:none;">
-    <h2>Your cart is empty</h2>
-    <a href="/menu" class="btn btn-primary">Browse Menu</a>
-</div>
-{% endblock %}
-
-{% block scripts %}
-<script>
-    function loadCart() {
-        fetch('/api/cart/view')
-            .then(res => res.json())
-            .then(data => {
-                const itemsContainer = document.getElementById('cart-items');
-                const emptyCart = document.getElementById('empty-cart');
-                
-                if (data.items.length === 0) {
-                    emptyCart.style.display = 'block';
-                    itemsContainer.innerHTML = '';
-                    document.querySelector('.cart-items-section').style.display = 'none';
-                    document.querySelector('.cart-summary-section').style.display = 'none';
-                    return;
-                }
-                
-                emptyCart.style.display = 'none';
-                document.querySelector('.cart-items-section').style.display = 'block';
-                document.querySelector('.cart-summary-section').style.display = 'block';
-                
-                itemsContainer.innerHTML = '';
-                data.items.forEach(item => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${item.name}</td>
-                        <td>₱${item.price.toFixed(2)}</td>
-                        <td>
-                            <div class="quantity-control">
-                                <button onclick="updateQuantity(${item.id}, ${item.quantity - 1})" ${item.quantity === 1 ? 'disabled' : ''}>-</button>
-                                <input type="number" value="${item.quantity}" min="1" onchange="updateQuantity(${item.id}, this.value)">
-                                <button onclick="updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
-                            </div>
-                        </td>
-                        <td>₱${item.subtotal.toFixed(2)}</td>
-                        <td>
-                            <button onclick="removeFromCart(${item.id})" class="btn-remove">Remove</button>
-                        </td>
-                    `;
-                    itemsContainer.appendChild(row);
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const baseTotal = parseFloat("{{ total }}"), deliveryFee = 50.00;
+            document.querySelectorAll('input[name="dining_option"]').forEach(r => {
+                r.addEventListener('change', function() {
+                    const isDel = this.value === 'DELIVERY';
+                    document.getElementById('delivery_fields').style.display = isDel ? 'block' : 'none';
+                    document.getElementById('delivery_fee_row').style.setProperty('display', isDel ? 'flex' : 'none', 'important');
+                    document.getElementById('totalAmountDisplay').innerText = '₱' + (isDel ? baseTotal + deliveryFee : baseTotal).toFixed(2);
+                    document.getElementById('label_pay_counter').innerHTML = isDel ? '<i class="fas fa-hand-holding-usd text-success me-2"></i>Cash on Delivery' : '<i class="fas fa-cash-register text-success me-2"></i>Pay at Counter';
+                    document.getElementById('desc_pay_counter').innerText = isDel ? 'Pay cash when your order arrives.' : 'Pay cash or card in-store.';
+                    document.getElementById('desc_pay_online').innerText = isDel ? 'Pay securely via e-wallet. Includes delivery fee.' : 'Pay securely via e-wallet.';
+                    const a = document.getElementById('delivery_area'), ad = document.getElementById('delivery_address');
+                    a.required = isDel; ad.required = isDel;
                 });
-                
-                document.getElementById('subtotal').textContent = data.total.toFixed(2);
-                document.getElementById('total').textContent = data.total.toFixed(2);
-                updateCartCount();
             });
-    }
-
-    function updateQuantity(itemId, quantity) {
-        if (quantity < 1) return;
-        
-        fetch(`/api/cart/update/${itemId}`, {
-            method: 'PUT',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({quantity: parseInt(quantity)})
-        }).then(() => loadCart());
-    }
-
-    function removeFromCart(itemId) {
-        if (confirm('Remove item from cart?')) {
-            fetch(`/api/cart/remove/${itemId}`, {method: 'DELETE'})
-                .then(() => loadCart());
-        }
-    }
-
-    // Load cart on page load
-    loadCart();
-</script>
+            const co = document.querySelector('input[name="dining_option"]:checked');
+            if (co && co.value === 'DELIVERY') co.dispatchEvent(new Event('change'));
+        });
+    </script>
+    {% else %}
+    <div class="cartEmpty">
+        <i class="fas fa-shopping-basket"></i>
+        <h3>Your cart is empty</h3>
+        <p>Looks like you haven't added any of our delicious items yet.</p>
+        <a href="{{ url_for('main.menu_page') }}" class="cartSubmit" style="display: inline-block; width: auto; padding: 0.85rem 2.5rem; text-decoration: none;"><i class="fas fa-book-open me-2"></i>Browse Menu</a>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}
